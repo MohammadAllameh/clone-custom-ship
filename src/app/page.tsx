@@ -1,101 +1,174 @@
-import Image from "next/image";
+// "use client";
+// import { SetStateAction, useState } from "react";
+
+// export default function Home() {
+//   const [isLoading, setIsLoading] = useState(false);
+//   const [aiResponse, setAiResponse] = useState("");
+//   const [inputValue, setInputValue] = useState('');
+
+//   const handleSubmit = async (event: { preventDefault: () => void; }) => {
+//     event.preventDefault();
+//     try {
+//       setIsLoading(true);
+//       console.log(inputValue.toString())
+//       const res = await fetch("/api/groq", {
+//         method: "POST",
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify({ data: inputValue.toString() }),
+//       });
+//       const data = await res.json();
+//       setAiResponse(data.content);
+//     } catch (error) {
+//       console.error(error);
+//     } finally {
+//       setIsLoading(false);
+//       setInputValue("");
+//     }
+//   };
+//   const handleChange = (event: { target: { value: SetStateAction<string>; }; }) => {
+//     setInputValue(event.target.value);
+//   }
+
+//   return (
+//     <main className="flex-1 flex flex-col items-center justify-center px-4 sm:px-0">
+//       <h1 className="text-2xl font-semibold text-red-400">
+//         <span className="font-normal text-sm text-gray-700">chat with</span>{" "}
+//         Groq AI
+//       </h1>
+//       <form
+//         onSubmit={handleSubmit}
+//         className="mt-4 p-2 sm:p-4 bg-white rounded-lg shadow-lg space-x-2"
+//       >
+//         <input
+//           type="text"
+//           // id="content"
+//           // value={ }
+//           value={inputValue}
+//           onChange={handleChange}
+//           placeholder="Ask me something..."
+//           className="border border-gray-300 rounded-lg p-2 max-w-[200px] sm:max-w-none focus:outline-none focus:ring-2 focus:ring-red-400"
+//         />
+//         <button
+//           type="submit"
+//           disabled={isLoading}
+//           className={`${isLoading
+//             ? "bg-gray-300 cursor-not-allowed"
+//             : "bg-red-400 hover:bg-red-500"
+//             } text-white px-4 py-2 rounded-lg focus:outline-none text-sm sm:text-base`}
+//         >
+//           {isLoading ? "Loading..." : "Submit"}
+//         </button>
+//       </form>
+//       {aiResponse && (
+//         <div className="mt-4 p-4 bg-white rounded-lg shadow-lg max-w-[400px]">
+//           <h2 className="text-lg font-semibold text-red-400">AI Response</h2>
+//           <p className="text-gray-600 max-h-80 overflow-y-auto  ">
+//             {aiResponse}
+//           </p>
+//         </div>
+//       )}
+//     </main>
+//   );
+// }
+
+
+"use client";
+
+import { useState } from "react";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [origin, setOrigin] = useState("تهران");
+  const [weight, setWeight] = useState(100); // وزن پیش‌فرض 100 گرم
+  const [aiResponse, setAiResponse] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const handleSubmit = async () => {
+    if (!weight || weight <= 0) return alert("وزن معتبر وارد کنید.");
+
+    setIsLoading(true);
+    setAiResponse(null);
+
+    try {
+      const res = await fetch("/api/groq", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ origin, weight }),
+      });
+
+      const data = await res.json();
+      console.log(data.content)
+      setAiResponse(data.content || {});
+    } catch (error) {
+      console.error("Error:", error);
+      alert("مشکلی پیش آمده است.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+      <h1 className="text-3xl font-bold mb-6">محاسبه نرخ حمل و نقل</h1>
+      <div className="bg-white shadow-lg rounded p-6 w-full max-w-lg">
+        {/* اطلاعات محصول */}
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold">محصول: لپ‌تاپ</h2>
+          <p className="text-gray-700">وزن پایه: 100 گرم</p>
+          <p className="text-gray-700">مقصد: تبریز</p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+
+        {/* انتخاب مبدا */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium mb-2">مبدا</label>
+          <select
+            value={origin}
+            onChange={(e) => setOrigin(e.target.value)}
+            className="w-full border border-gray-300 rounded p-2"
+          >
+            <option value="تهران">تهران</option>
+            <option value="مشهد">مشهد</option>
+            <option value="اصفهان">اصفهان</option>
+          </select>
+        </div>
+
+        {/* وارد کردن وزن */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium mb-2">وزن (گرم)</label>
+          <input
+            type="number"
+            value={weight}
+            onChange={(e) => setWeight(parseInt(e.target.value))}
+            className="w-full border border-gray-300 rounded p-2"
+            placeholder="وزن را وارد کنید"
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+        </div>
+
+        {/* دکمه ارسال */}
+        <button
+          onClick={handleSubmit}
+          className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+          disabled={isLoading}
         >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          {isLoading ? "در حال محاسبه..." : "محاسبه نرخ"}
+        </button>
+
+        {/* نمایش نتیجه */}
+        {aiResponse ? (
+          <div className="mt-6">
+            <h3 className="text-lg font-semibold mb-4">نتایج:</h3>
+            <div>
+              {aiResponse}
+            </div>
+            {/* <div className="space-y-2">
+              <p>هزینه حمل و نقل زمینی: {aiResponse.ground} تومان</p>
+              <p>هزینه حمل و نقل دریایی: {aiResponse.sea} تومان</p>
+              <p>هزینه حمل و نقل هوایی: {aiResponse.air} تومان</p>
+            </div> */}
+          </div>
+        ) : <></>}
+      </div>
     </div>
   );
 }
