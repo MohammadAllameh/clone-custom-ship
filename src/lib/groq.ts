@@ -1,7 +1,7 @@
 import Groq from "groq-sdk";
 
 const groq = new Groq({
-    apiKey: "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",
+    apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY,
 });
 
 export const reqGroqAI = async (origin: string, weight: number) => {
